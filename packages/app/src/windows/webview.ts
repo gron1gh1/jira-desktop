@@ -9,9 +9,5 @@ export const createWebview = (url: string) => {
     height: Math.floor(size.height * 0.9),
   });
 
-  const urlWithHttps = url.includes("https://")
-    ? url
-    : ["https://", url].join("");
-
-  window.loadURL(urlWithHttps);
+  window.loadURL(url);
 };

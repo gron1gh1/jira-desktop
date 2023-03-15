@@ -1,6 +1,6 @@
-import { app, BrowserWindow, ipcMain, screen } from "electron";
+import { BrowserWindow } from "electron";
 import path from "path";
-import { workspaces } from "./utils/workspaces";
+import { workspaces } from "../utils/workspaces";
 
 export const createSetting = () => {
   const window = new BrowserWindow({
