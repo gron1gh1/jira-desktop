@@ -1,17 +1,17 @@
 <script lang="ts">
   import { cn } from "$lib/utils/cn";
   import { Button, Input, ListGroup, ListGroupItem } from "sveltestrap";
+  import { onMount } from "svelte";
 
   let jiraUrl = "";
 
-  let recentlyList = [
-    {
-      name: "Jira 1",
-      url: "https://jira1.atlassian.net/",
-    },
-  ];
+  let recentlyList: HistoryType[] = [];
 
   let selectedJira = "";
+
+  onMount(async () => {
+    recentlyList = await window.api.getHistories();
+  });
 </script>
 
 <title>Setting</title>
@@ -38,9 +38,15 @@
     <div class="list-content">
       {#each recentlyList as item}
         <ListGroupItem
-          class={cn("item", selectedJira !== item.name && "item-hover")}
-          on:click={() => (selectedJira = item.name)}
-          active={selectedJira === item.name}>{item.name}</ListGroupItem
+          class={cn("item", selectedJira !== item.url && "item-hover")}
+          on:click={() => {
+            if (selectedJira === item.url) {
+              window.api.openJira(item.url);
+              return;
+            }
+            selectedJira = item.url;
+          }}
+          active={selectedJira === item.url}>{item.name}</ListGroupItem
         >
       {/each}
     </div>
