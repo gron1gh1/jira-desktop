@@ -26,8 +26,10 @@
     color="primary"
     on:click={() => {
       window.api.openJira(jiraUrl);
-    }}>Connect</Button
+    }}
   >
+    Connect
+  </Button>
 </div>
 
 <div class="list ">
@@ -57,7 +59,8 @@
   }
 
   .list-content {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    border-top: 0px;
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
     height: 200px;
@@ -66,15 +69,14 @@
 
   :global(.item) {
     cursor: pointer;
+    border-radius: 0px !important;
+    border-left-width: 0 !important;
+    border-right-width: 0 !important;
     border: 1px solid rgba(0, 0, 0, 0.125);
   }
 
   :global(.item):first-child {
-    border-top: 0;
-  }
-
-  :global(.item):last-child {
-    border-bottom: 0;
+    border-top-width: 0;
   }
 
   :global(.item-hover):hover {
