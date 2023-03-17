@@ -1,6 +1,6 @@
 import { createSetting, createWebview } from "./windows";
 import { getPrefixFromUrl, validateJiraUrl } from "./utils/url";
-import { getHistories, pushHistory } from "./store";
+import { clearHistories, getHistories, pushHistory } from "./store";
 import { app, ipcMain } from "electron";
 
 app.whenReady().then(() => {
@@ -11,13 +11,18 @@ app.whenReady().then(() => {
     return result;
   });
 
+  ipcMain.handle("clear-histories", async () => {
+    const result = await clearHistories();
+    return result;
+  });
+
   ipcMain.on("open-jira", (_, url) => {
     const httpsUrl = url.includes("https://")
       ? url
       : ["https://", url].join("");
 
     if (!validateJiraUrl(httpsUrl)) {
-      alert("Invalid URL");
+      settingWindow.webContents.send("alert", "Invalid URL");
       return;
     }
 

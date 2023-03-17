@@ -5,7 +5,8 @@ export const validateJiraUrl = (url: string) => {
 };
 
 export const getHostFromUrl = (url: string) => {
-  const matches = jiraRegExp.exec(url);
+  const matches = url.match(jiraRegExp);
+
   if (matches) {
     return matches[0];
   }
