@@ -1,6 +1,8 @@
 export interface IApi {
-  openJira: (url: string) => void;
+  onAlert: (callback: (message: string) => void) => () => void;
+  openJira: (url: string) => Promise<void>;
   getHistories: () => Promise<HistoryType[]>;
+  clearHistories: () => Promise<void>;
 }
 
 declare global {

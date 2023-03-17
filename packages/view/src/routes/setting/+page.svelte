@@ -1,63 +1,84 @@
 <script lang="ts">
   import { cn } from "$lib/utils/cn";
   import { Button, Input, ListGroup, ListGroupItem } from "sveltestrap";
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
+  import { noop } from "svelte/internal";
 
   let jiraUrl = "";
 
-  let recentlyList: HistoryType[] = [];
+  let histories: HistoryType[] = [];
 
   let selectedJira = "";
 
+  let clean = noop;
+
   onMount(async () => {
-    recentlyList = await window.api.getHistories();
+    clean = window.api.onAlert((message) => alert(message));
+    histories = await window.api.getHistories();
+  });
+
+  onDestroy(() => {
+    clean();
   });
 </script>
 
-<title>Setting</title>
+<div class="container">
+  <title>Setting</title>
 
-<div class="box">
-  <Input
-    type="text"
-    bind:value={jiraUrl}
-    placeholder="https://*.atlassian.net/"
-  />
-  <Button
-    color="primary"
-    on:click={() => {
-      window.api.openJira(jiraUrl);
-    }}
-  >
-    Connect
-  </Button>
-</div>
+  <form class="box" on:submit={() => window.api.openJira(jiraUrl)}>
+    <Input
+      type="text"
+      bind:value={jiraUrl}
+      placeholder="https://*.atlassian.net"
+    />
+    <Button type="submit" color="primary">Connect</Button>
+  </form>
 
-<div class="list ">
-  <ListGroup>
-    <ListGroupItem disabled>Recently Visited Jira</ListGroupItem>
-    <div class="list-content">
-      {#each recentlyList as item}
-        <ListGroupItem
-          class={cn("item", selectedJira !== item.url && "item-hover")}
-          on:click={() => {
-            if (selectedJira === item.url) {
-              window.api.openJira(item.url);
-              return;
-            }
-            selectedJira = item.url;
-          }}
-          active={selectedJira === item.url}>{item.name}</ListGroupItem
+  <div class="list ">
+    <ListGroup>
+      <ListGroupItem class="list-title">
+        <p>Recently Visited Jira</p>
+        <Button
+          class="clickable"
+          on:click={async () => {
+            await window.api.clearHistories();
+            histories = await window.api.getHistories();
+          }}>Clear</Button
         >
-      {/each}
-    </div>
-  </ListGroup>
+      </ListGroupItem>
+      <div class="list-content">
+        {#each histories as history}
+          <ListGroupItem
+            class={cn("item", selectedJira !== history.url && "item-hover")}
+            on:click={() => {
+              if (selectedJira === history.url) {
+                window.api.openJira(history.url);
+                return;
+              }
+              selectedJira = history.url;
+              jiraUrl = history.url;
+            }}
+            active={selectedJira === history.url}>{history.name}</ListGroupItem
+          >
+        {/each}
+      </div>
+    </ListGroup>
+  </div>
 </div>
 
 <style>
+  .container {
+    user-select: none;
+  }
+
   .box {
     padding: 24px;
     display: flex;
     gap: 12px;
+  }
+
+  p {
+    margin: 0;
   }
 
   .list {
@@ -79,6 +100,13 @@
     border-left-width: 0 !important;
     border-right-width: 0 !important;
     border: 1px solid rgba(0, 0, 0, 0.125);
+  }
+
+  :global(.list-title) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #6c757d;
   }
 
   :global(.item):first-child {
